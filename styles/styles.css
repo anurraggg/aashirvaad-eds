@@ -249,6 +249,8 @@ main .section.highlight {
   padding: 40px 0;
 }
 
-.section.highlight.hero-carousel-container{
+.section.hero-carousel-container{
   background: #fff6e3;
+  padding-top: 50px;
+  padding-bottom: 50px;
 }

@@ -1,37 +1,33 @@
 export default function decorate(block) {
     block.classList.add('category-grid');
   
-    // Get all rows (div-based EDS structure)
     const rows = [...block.children];
     if (rows.length === 0) return;
   
-    // --- Detect Title ---
+    // --- Detect Title (row with text but no image) ---
     let titleText = '';
     const firstRow = rows[0];
-    const firstCell = firstRow.querySelector('div, p');
-    const maybeImage = firstRow.querySelector('img');
+    const maybeImg = firstRow.querySelector('img');
+    const maybeText = firstRow.textContent.trim();
   
-    // If first row has no image, treat it as title
-    if (firstCell && !maybeImage && firstCell.textContent.trim()) {
-      titleText = firstCell.textContent.trim();
-      firstRow.remove(); // safely remove title row
+    if (maybeText && !maybeImg) {
+      titleText = maybeText;
+      firstRow.remove(); // safely remove title row from grid
     }
   
-    // --- Create wrapper for items ---
+    // --- Build Wrapper ---
     const wrapper = document.createElement('div');
     wrapper.className = 'category-grid__wrapper';
   
-    // --- Build each item ---
-    rows.forEach((row) => {
-      const cells = [...row.children];
-      if (cells.length === 0) return;
-  
-      const imgEl = row.querySelector('img');
-      const nameEl = cells.find((c) => !c.querySelector('img'));
-      const imgSrc = imgEl ? imgEl.src : '';
+    // --- Loop through Remaining Rows ---
+    [...block.children].forEach((row) => {
+      const img = row.querySelector('img');
+      const nameEl = [...row.querySelectorAll('div, p')]
+        .find((el) => el !== img?.parentElement && el.textContent.trim());
       const name = nameEl ? nameEl.textContent.trim() : '';
+      const imgSrc = img ? img.src : '';
   
-      // Skip empty rows
+      // Skip invalid rows
       if (!imgSrc && !name) return;
   
       const item = document.createElement('div');
@@ -40,11 +36,11 @@ export default function decorate(block) {
       const imgWrap = document.createElement('div');
       imgWrap.className = 'category-grid__image-wrap';
       if (imgSrc) {
-        const img = document.createElement('img');
-        img.src = imgSrc;
-        img.alt = name;
-        img.loading = 'lazy';
-        imgWrap.appendChild(img);
+        const image = document.createElement('img');
+        image.src = imgSrc;
+        image.alt = name;
+        image.loading = 'lazy';
+        imgWrap.appendChild(image);
       }
   
       const label = document.createElement('p');
@@ -55,10 +51,9 @@ export default function decorate(block) {
       wrapper.appendChild(item);
     });
   
-    // --- Clear block and rebuild ---
+    // --- Clear & Rebuild Block ---
     block.innerHTML = '';
   
-    // Add title if present
     if (titleText) {
       const title = document.createElement('h2');
       title.className = 'category-grid__title';

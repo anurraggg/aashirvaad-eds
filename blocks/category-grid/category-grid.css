@@ -84,5 +84,10 @@
     .category-grid__label {
       font-size: 1rem;
     }
+    .category-grid {
+        background-color: #fff6e6;
+        text-align: center;
+        padding: 60px 10%;
+      }
   }
   

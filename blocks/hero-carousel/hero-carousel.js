@@ -97,11 +97,11 @@ export default function decorate(block) {
     // Navigation
     const prevBtn = document.createElement('button');
     prevBtn.className = 'hero-carousel__nav hero-carousel__prev';
-    prevBtn.innerHTML = '←';
+    prevBtn.innerHTML = '<';
   
     const nextBtn = document.createElement('button');
     nextBtn.className = 'hero-carousel__nav hero-carousel__next';
-    nextBtn.innerHTML = '→';
+    nextBtn.innerHTML = '>';
   
     const dots = document.createElement('div');
     dots.className = 'hero-carousel__dots';

@@ -159,10 +159,6 @@ a:any-link {
   overflow-wrap: break-word;
 }
 
-a:hover {
-  color: var(--link-hover-color);
-  text-decoration: underline;
-}
 
 /* buttons */
 a.button:any-link,
@@ -180,7 +176,6 @@ button {
   line-height: 1.25;
   text-align: center;
   text-decoration: none;
-  background-color: var(--link-color);
   color: var(--background-color);
   cursor: pointer;
   overflow: hidden;
@@ -192,7 +187,6 @@ a.button:hover,
 a.button:focus,
 button:hover,
 button:focus {
-  background-color: var(--link-hover-color);
   cursor: pointer;
 }
 
@@ -253,4 +247,8 @@ main .section.highlight {
   background-color: var(--light-color);
   margin: 0;
   padding: 40px 0;
+}
+
+.section.highlight.hero-carousel-container{
+  background: #fff6e3;
 }

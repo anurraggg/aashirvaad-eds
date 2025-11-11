@@ -36,13 +36,13 @@
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
-    padding: 60px 8%;
+    padding: 60px 12%;
     box-sizing: border-box;
   }
   
   .hero-carousel__logo {
     max-width: 180px;
-    margin-bottom: 20px;
+    margin-bottom: -15px;
   }
   
   .hero-carousel__content h2 {

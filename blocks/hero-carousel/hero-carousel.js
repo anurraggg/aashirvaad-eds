@@ -3,40 +3,52 @@ export default function decorate(block) {
   
     block.classList.add('hero-carousel');
   
+    // Detect table OR flattened div structure (AEM EDS converts tables to divs)
+    let slides = [];
     const table = block.querySelector('table, div > table');
-    if (!table) {
-      console.warn('⚠️ No table found in hero-carousel block');
-      return;
+    const divRows = [...block.children].filter((el) => el.tagName === 'DIV');
+  
+    if (table) {
+      console.log('📋 Table detected');
+      const rows = table.querySelectorAll('tr');
+      rows.forEach((row, i) => {
+        if (i === 0) return; // skip header
+        const cells = row.querySelectorAll('td');
+        if (cells.length < 6) return;
+  
+        const bgImg = cells[0].querySelector('img')?.src || cells[0].innerText.trim();
+        const overlayImg = cells[1].querySelector('img')?.src || cells[1].innerText.trim();
+        const title = cells[2].innerText.trim();
+        const desc = cells[3].innerText.trim();
+        const btnText = cells[4].innerText.trim();
+        const btnLink = cells[5].innerText.trim();
+  
+        slides.push({ bgImg, overlayImg, title, desc, btnText, btnLink });
+      });
+    } else if (divRows.length > 0) {
+      console.log('🧩 Detected flattened DIV layout');
+      // Skip the first div (header row)
+      const dataRows = divRows.slice(1);
+  
+      dataRows.forEach((row) => {
+        const cells = [...row.children];
+        if (cells.length < 6) return;
+  
+        const bgImg = cells[0].querySelector('img')?.src || cells[0].innerText.trim();
+        const overlayImg = cells[1].querySelector('img')?.src || cells[1].innerText.trim();
+        const title = cells[2]?.innerText.trim() || '';
+        const desc = cells[3]?.innerText.trim() || '';
+        const btnText = cells[4]?.innerText.trim() || '';
+        const btnLink = cells[5]?.innerText.trim() || '';
+  
+        slides.push({ bgImg, overlayImg, title, desc, btnText, btnLink });
+      });
     }
   
-    const rows = table.querySelectorAll('tr');
-    const slides = [];
-  
-    // Skip the header row
-    rows.forEach((row, i) => {
-      if (i === 0) return;
-      const cells = row.querySelectorAll('td');
-      if (cells.length < 6) return;
-  
-      const bgImg = cells[0].querySelector('img')?.src || cells[0].innerText.trim();
-      const overlayImg = cells[1].querySelector('img')?.src || cells[1].innerText.trim();
-      const title = cells[2].innerText.trim();
-      const desc = cells[3].innerText.trim();
-      const btnText = cells[4].innerText.trim();
-      const btnLink = cells[5].innerText.trim();
-  
-      slides.push({
-        bgImg,
-        overlayImg,
-        title,
-        desc,
-        btnText,
-        btnLink,
-      });
-    });
+    console.log('Slides found:', slides);
   
     if (slides.length === 0) {
-      console.warn('⚠️ No slides found in hero-carousel block');
+      console.warn('⚠️ No valid slides detected in hero-carousel block');
       return;
     }
   
@@ -78,11 +90,11 @@ export default function decorate(block) {
       wrapper.appendChild(slideEl);
     });
   
-    // Clear block and rebuild
+    // Clear and rebuild
     block.innerHTML = '';
     block.appendChild(wrapper);
   
-    // Add navigation
+    // Navigation
     const prevBtn = document.createElement('button');
     prevBtn.className = 'hero-carousel__nav hero-carousel__prev';
     prevBtn.innerHTML = '←';
@@ -102,7 +114,7 @@ export default function decorate(block) {
   
     block.append(prevBtn, nextBtn, dots);
   
-    // Carousel logic
+    // Carousel Logic
     let current = 0;
     const allSlides = block.querySelectorAll('.hero-carousel__slide');
     const allDots = block.querySelectorAll('.hero-carousel__dot');

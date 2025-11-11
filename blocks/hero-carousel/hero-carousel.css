@@ -1,0 +1,160 @@
+.hero-carousel {
+    position: relative;
+    overflow: hidden;
+    background-color: #fff6e6;
+  }
+  
+  .hero-carousel__wrapper {
+    width: 100%;
+    position: relative;
+  }
+  
+  .hero-carousel__slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 550px;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+  
+  .hero-carousel__slide.active {
+    opacity: 1;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .hero-carousel__overlay {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.35);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 60px 8%;
+    box-sizing: border-box;
+  }
+  
+  .hero-carousel__logo {
+    max-width: 180px;
+    margin-bottom: 20px;
+  }
+  
+  .hero-carousel__content h2 {
+    font-size: 2.4rem;
+    color: #fff;
+    margin-bottom: 16px;
+  }
+  
+  .hero-carousel__content p {
+    font-size: 1.1rem;
+    color: #fff;
+    margin-bottom: 24px;
+    max-width: 600px;
+    line-height: 1.6;
+  }
+  
+  .hero-carousel__btn {
+    background: #d71a28;
+    color: #fff;
+    padding: 12px 28px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: background 0.3s ease;
+  }
+  
+  .hero-carousel__btn:hover {
+    background: #b71520;
+  }
+  
+  /* Navigation */
+  .hero-carousel__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(215, 26, 40, 0.9);
+    color: #fff;
+    border: none;
+    font-size: 1.8rem;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s;
+    z-index: 10;
+  }
+  
+  .hero-carousel__nav:hover {
+    background: rgba(183, 21, 32, 0.9);
+  }
+  
+  .hero-carousel__prev {
+    left: 4%;
+  }
+  
+  .hero-carousel__next {
+    right: 4%;
+  }
+  
+  /* Dots */
+  .hero-carousel__dots {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+  }
+  
+  .hero-carousel__dot {
+    width: 12px;
+    height: 12px;
+    border: 2px solid #d71a28;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .hero-carousel__dot.active {
+    background: #d71a28;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero-carousel__slide {
+      height: 420px;
+    }
+  
+    .hero-carousel__overlay {
+      align-items: center;
+      text-align: center;
+      padding: 40px 20px;
+    }
+  
+    .hero-carousel__content h2 {
+      font-size: 1.6rem;
+    }
+  
+    .hero-carousel__content p {
+      font-size: 1rem;
+    }
+  
+    .hero-carousel__btn {
+      padding: 10px 20px;
+      font-size: 0.95rem;
+    }
+  
+    .hero-carousel__nav {
+      width: 36px;
+      height: 36px;
+      font-size: 1.2rem;
+    }
+  }
+  

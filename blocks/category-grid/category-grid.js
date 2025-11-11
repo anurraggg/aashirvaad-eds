@@ -1,38 +1,38 @@
 export default function decorate(block) {
     block.classList.add('category-grid');
   
+    // Get all rows (div-based EDS structure)
     const rows = [...block.children];
     if (rows.length === 0) return;
   
-    // First row = title (optional)
+    // --- Detect Title ---
+    let titleText = '';
     const firstRow = rows[0];
     const firstCell = firstRow.querySelector('div, p');
-    let titleText = '';
-    if (firstCell && firstCell.textContent.trim()) {
+    const maybeImage = firstRow.querySelector('img');
+  
+    // If first row has no image, treat it as title
+    if (firstCell && !maybeImage && firstCell.textContent.trim()) {
       titleText = firstCell.textContent.trim();
-      firstRow.remove(); // remove title row from grid items
+      firstRow.remove(); // safely remove title row
     }
   
-    // Create container
+    // --- Create wrapper for items ---
     const wrapper = document.createElement('div');
     wrapper.className = 'category-grid__wrapper';
   
-    // Create title if available
-    if (titleText) {
-      const title = document.createElement('h2');
-      title.className = 'category-grid__title';
-      title.textContent = titleText;
-      block.prepend(title);
-    }
-  
-    // Loop through remaining rows → each row = one category item
+    // --- Build each item ---
     rows.forEach((row) => {
       const cells = [...row.children];
-      if (cells.length < 2) return;
+      if (cells.length === 0) return;
   
-      const imgEl = cells[0].querySelector('img');
+      const imgEl = row.querySelector('img');
+      const nameEl = cells.find((c) => !c.querySelector('img'));
       const imgSrc = imgEl ? imgEl.src : '';
-      const name = cells[1].innerText.trim();
+      const name = nameEl ? nameEl.textContent.trim() : '';
+  
+      // Skip empty rows
+      if (!imgSrc && !name) return;
   
       const item = document.createElement('div');
       item.className = 'category-grid__item';
@@ -55,7 +55,17 @@ export default function decorate(block) {
       wrapper.appendChild(item);
     });
   
+    // --- Clear block and rebuild ---
     block.innerHTML = '';
+  
+    // Add title if present
+    if (titleText) {
+      const title = document.createElement('h2');
+      title.className = 'category-grid__title';
+      title.textContent = titleText;
+      block.appendChild(title);
+    }
+  
     block.appendChild(wrapper);
   }
   

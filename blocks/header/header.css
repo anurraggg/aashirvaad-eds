@@ -43,7 +43,7 @@ header nav[aria-expanded='true'] {
   header nav[aria-expanded='true'] {
     min-height: 0;
     overflow: visible;
-    color: #fff6e6;
+    color: #fff6e3;
   }
 }
 

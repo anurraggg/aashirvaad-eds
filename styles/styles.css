@@ -254,3 +254,7 @@ main .section.highlight {
   padding-top: 50px;
   padding-bottom: 50px;
 }
+
+.section.category-grid-container{
+  background: #fff6e3;
+}

@@ -1,7 +1,7 @@
 .category-grid {
     background-color: #fff6e6;
     text-align: center;
-    padding: 60px 5%;
+    padding: 60px 10%;
   }
   
   .category-grid__title {
@@ -38,7 +38,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
     position: relative;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }

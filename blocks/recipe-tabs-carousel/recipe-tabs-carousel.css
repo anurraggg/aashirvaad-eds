@@ -5,6 +5,7 @@
     font-family: 'Georgia', serif;
   }
   
+  /* ---------- Header ---------- */
   .rtc__header h2 {
     font-size: 2rem;
     color: #3a1a0b;
@@ -16,6 +17,7 @@
     margin-bottom: 32px;
   }
   
+  /* ---------- Tabs ---------- */
   .rtc__tabs {
     display: flex;
     flex-wrap: wrap;
@@ -40,6 +42,7 @@
     border-color: #d71a28;
   }
   
+  /* ---------- Carousel Wrapper ---------- */
   .rtc__carousels {
     position: relative;
   }
@@ -48,7 +51,6 @@
     display: none;
     overflow-x: auto;
     scroll-behavior: smooth;
-    display: flex;
     gap: 24px;
     padding: 0 5%;
   }
@@ -57,36 +59,44 @@
     display: flex;
   }
   
+  .rtc__carousel::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* ---------- Cards ---------- */
   .rtc__card {
     flex: 0 0 30%;
     background: #fff;
     border-radius: 16px;
     overflow: hidden;
     min-width: 280px;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: default;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   }
   
   .rtc__card:hover {
     transform: translateY(-6px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
   }
   
+  /* ---------- Image & Overlay ---------- */
   .rtc__image {
     position: relative;
+    overflow: hidden;
+    border-radius: 16px 16px 0 0;
   }
   
   .rtc__image img {
     width: 100%;
     height: auto;
     display: block;
+    border-radius: 16px 16px 0 0;
   }
   
   .rtc__overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     background: rgba(0, 0, 0, 0.45);
     display: flex;
     flex-direction: column;
@@ -94,6 +104,8 @@
     align-items: center;
     opacity: 0;
     transition: opacity 0.3s ease;
+    z-index: 2;
+    padding: 16px;
   }
   
   .rtc__image:hover .rtc__overlay {
@@ -115,11 +127,21 @@
     border-radius: 6px;
     text-decoration: none;
     font-weight: 600;
+    transition: background 0.3s ease;
   }
   
+  .rtc__overlay-btn:hover {
+    background: #ffcc33;
+  }
+  
+  /* ---------- Card Body ---------- */
   .rtc__body {
+    background: #fff;
     padding: 16px;
     text-align: left;
+    border-radius: 0 0 16px 16px;
+    position: relative;
+    z-index: 1;
   }
   
   .rtc__category {
@@ -133,6 +155,7 @@
     font-size: 1.1rem;
     color: #3a1a0b;
     margin-bottom: 10px;
+    line-height: 1.4;
   }
   
   .rtc__meta {
@@ -144,6 +167,13 @@
     padding-top: 10px;
   }
   
+  .rtc__meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  /* ---------- Navigation Arrows ---------- */
   .rtc__nav {
     position: absolute;
     top: 40%;
@@ -156,6 +186,7 @@
     font-size: 1.4rem;
     cursor: pointer;
     transition: background 0.3s ease;
+    z-index: 10;
   }
   
   .rtc__nav:hover {
@@ -170,6 +201,7 @@
     right: 1%;
   }
   
+  /* ---------- Responsive ---------- */
   @media (max-width: 1024px) {
     .rtc__card {
       flex: 0 0 45%;
@@ -179,6 +211,12 @@
   @media (max-width: 768px) {
     .rtc__card {
       flex: 0 0 80%;
+    }
+  
+    .rtc__nav {
+      width: 38px;
+      height: 38px;
+      font-size: 1.2rem;
     }
   }
   

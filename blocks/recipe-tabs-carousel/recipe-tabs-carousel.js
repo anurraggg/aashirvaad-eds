@@ -1,15 +1,17 @@
 export default function decorate(block) {
+    console.log('✅ Recipe Tabs Carousel (robust) loaded');
     block.classList.add('recipe-tabs-carousel');
   
+    // collect children as rows (EDS flattens to divs)
     const rows = [...block.children];
     if (rows.length === 0) return;
   
-    // --- Extract Title + Subtitle ---
+    // Title row detection: first row -> title & subtitle
     const titleRow = rows.shift();
     const title = titleRow?.children?.[0]?.innerText?.trim() || '';
     const subtitle = titleRow?.children?.[1]?.innerText?.trim() || '';
   
-    // --- Containers ---
+    // build main layout
     const wrapper = document.createElement('div');
     wrapper.className = 'rtc__wrapper';
   
@@ -34,67 +36,108 @@ export default function decorate(block) {
     const carouselsContainer = document.createElement('div');
     carouselsContainer.className = 'rtc__carousels';
   
-    // --- Parse Tabs + Cards ---
-    let currentTab = null;
+    wrapper.appendChild(tabsContainer);
+    wrapper.appendChild(carouselsContainer);
+    block.innerHTML = '';
+    block.appendChild(wrapper);
+  
     let currentCarousel = null;
   
-    rows.forEach((row) => {
-      const firstCellText = row.children?.[0]?.innerText?.trim() || '';
+    // helper: parse a row into data object (robust)
+    function parseRow(row) {
+      const imgEl = row.querySelector('img');
+      const imgSrc = imgEl ? imgEl.src : '';
   
-      if (firstCellText.toLowerCase() === 'tab') {
+      // full text of row (all cells) to search for labeled fields
+      const fullText = [...row.querySelectorAll('div, p, span')]
+        .map(n => n.innerText || '')
+        .join('\n')
+        .replace(/\r/g, '')
+        .trim();
+  
+      // regex getter
+      const getLabel = (label) => {
+        const re = new RegExp(label.replace(/\s+/g, '\\s*') + '\\s*:\\s*(.+)', 'i');
+        const m = fullText.match(re);
+        return m ? m[1].trim() : null;
+      };
+  
+      const data = {
+        overlayTitle: getLabel('Overlay Title') || getLabel('OverlayTitle') || null,
+        overlayButton: getLabel('Overlay Button') || getLabel('OverlayButton') || null,
+        category: getLabel('Category') || null,
+        title: getLabel('Title') || null,
+        time: getLabel('Time') || null,
+        level: getLabel('Level') || null,
+        link: getLabel('Link') || null,
+        img: imgSrc,
+      };
+  
+      // fallback: if no labeled fields found, fall back to ordered lines parse
+      const anyLabeled = Object.keys(data).some(k => (k === 'img') ? false : !!data[k]);
+      if (!anyLabeled) {
+        const lines = fullText.split('\n').map(l => l.trim()).filter(Boolean);
+        // map fallback positions:
+        // [0] Overlay Title, [1] Overlay Button, [2] Category, [3] Title, [4] Time, [5] Level, [6] Link
+        if (lines.length) data.overlayTitle = data.overlayTitle || lines[0] || null;
+        if (lines.length > 1) data.overlayButton = data.overlayButton || lines[1] || null;
+        if (lines.length > 2) data.category = data.category || lines[2] || null;
+        if (lines.length > 3) data.title = data.title || lines[3] || null;
+        if (lines.length > 4) data.time = data.time || lines[4] || null;
+        if (lines.length > 5) data.level = data.level || lines[5] || null;
+        if (lines.length > 6) data.link = data.link || lines[6] || null;
+      }
+  
+      return data;
+    }
+  
+    // parse rows -> tabs + cards
+    rows.forEach((row) => {
+      const firstColText = row.children?.[0]?.innerText?.trim()?.toLowerCase() || '';
+  
+      if (firstColText === 'tab') {
+        // new tab
         const tabName = row.children?.[1]?.innerText?.trim() || 'Tab';
         const tabButton = document.createElement('button');
         tabButton.className = 'rtc__tab';
         tabButton.textContent = tabName;
-  
-        if (!currentTab) tabButton.classList.add('active'); // First tab active
+        if (!tabsContainer.querySelector('.rtc__tab')) tabButton.classList.add('active');
         tabsContainer.appendChild(tabButton);
   
-        currentTab = tabName;
-  
+        // create a new carousel container for this tab
         currentCarousel = document.createElement('div');
         currentCarousel.className = 'rtc__carousel';
-        if (tabsContainer.children.length === 1) currentCarousel.classList.add('active');
-  
+        if (!carouselsContainer.querySelector('.rtc__carousel')) currentCarousel.classList.add('active');
         carouselsContainer.appendChild(currentCarousel);
   
+        // tab click handler
         tabButton.addEventListener('click', () => {
-          document.querySelectorAll('.rtc__tab').forEach((t) => t.classList.remove('active'));
-          document.querySelectorAll('.rtc__carousel').forEach((c) => c.classList.remove('active'));
+          tabsContainer.querySelectorAll('.rtc__tab').forEach(t => t.classList.remove('active'));
+          carouselsContainer.querySelectorAll('.rtc__carousel').forEach(c => c.classList.remove('active'));
           tabButton.classList.add('active');
           currentCarousel.classList.add('active');
         });
       } else if (currentCarousel) {
-        // Parse card data
-        const cells = [...row.children];
-        const imgEl = row.querySelector('img');
-        const imgSrc = imgEl ? imgEl.src : '';
+        // recipe card row for current tab
+        const data = parseRow(row);
+        console.log('Parsed recipe:', data);
   
-        const data = {};
-        cells.forEach((cell) => {
-          const txt = cell.innerText.trim();
-          if (txt.startsWith('Overlay Title:')) data.overlayTitle = txt.replace('Overlay Title:', '').trim();
-          if (txt.startsWith('Overlay Button:')) data.overlayButton = txt.replace('Overlay Button:', '').trim();
-          if (txt.startsWith('Category:')) data.category = txt.replace('Category:', '').trim();
-          if (txt.startsWith('Title:')) data.title = txt.replace('Title:', '').trim();
-          if (txt.startsWith('Time:')) data.time = txt.replace('Time:', '').trim();
-          if (txt.startsWith('Level:')) data.level = txt.replace('Level:', '').trim();
-          if (txt.startsWith('Link:')) data.link = txt.replace('Link:', '').trim();
-        });
-  
-        // Create card
+        // create card markup
         const card = document.createElement('div');
         card.className = 'rtc__card';
   
+        // image wrapper
         const imgWrapper = document.createElement('div');
         imgWrapper.className = 'rtc__image';
-        if (imgSrc) {
+        if (data.img) {
           const img = document.createElement('img');
-          img.src = imgSrc;
+          img.src = data.img;
           img.alt = data.title || '';
+          img.loading = 'lazy';
           imgWrapper.appendChild(img);
         }
   
+        // overlay (only overlayTitle + overlayButton)
         const overlay = document.createElement('div');
         overlay.className = 'rtc__overlay';
         if (data.overlayTitle) {
@@ -103,15 +146,23 @@ export default function decorate(block) {
           oTitle.textContent = data.overlayTitle;
           overlay.appendChild(oTitle);
         }
-        if (data.overlayButton && data.link) {
+        if (data.overlayButton) {
+          // only add button if link exists
           const btn = document.createElement('a');
-          btn.href = data.link;
           btn.className = 'rtc__overlay-btn';
           btn.textContent = data.overlayButton;
+          if (data.link) {
+            btn.href = data.link;
+            btn.setAttribute('target', '_self');
+          } else {
+            // no link: make it a non-clickable span-looking button
+            btn.removeAttribute('href');
+          }
           overlay.appendChild(btn);
         }
         imgWrapper.appendChild(overlay);
   
+        // card body (below image) -> category / title / meta
         const cardBody = document.createElement('div');
         cardBody.className = 'rtc__body';
   
@@ -131,50 +182,72 @@ export default function decorate(block) {
         const meta = document.createElement('div');
         meta.className = 'rtc__meta';
         if (data.time) {
-          const time = document.createElement('span');
-          time.innerHTML = `⏱ ${data.time}`;
-          meta.appendChild(time);
+          const s = document.createElement('span');
+          s.className = 'rtc__meta-item';
+          s.innerHTML = `⏱ ${data.time}`;
+          meta.appendChild(s);
         }
         if (data.level) {
-          const lvl = document.createElement('span');
-          lvl.innerHTML = `👨‍🍳 ${data.level}`;
-          meta.appendChild(lvl);
+          const s2 = document.createElement('span');
+          s2.className = 'rtc__meta-item';
+          s2.innerHTML = `👨‍🍳 ${data.level}`;
+          meta.appendChild(s2);
         }
-  
         cardBody.appendChild(meta);
   
+        // assemble and append to current carousel
         card.appendChild(imgWrapper);
         card.appendChild(cardBody);
         currentCarousel.appendChild(card);
+      } else {
+        // row before any tab - ignore or log
+        console.warn('Row found before first Tab — ignored:', row);
       }
     });
   
-    wrapper.appendChild(tabsContainer);
-    wrapper.appendChild(carouselsContainer);
-    block.innerHTML = '';
-    block.appendChild(wrapper);
+    // add navigation arrows per carousel (arrow placed next to carouselsContainer)
+    carouselsContainer.querySelectorAll('.rtc__carousel').forEach((carousel) => {
+      const wrapperBox = document.createElement('div');
+      wrapperBox.className = 'rtc__carousel-wrap';
+      carousel.parentElement.insertBefore(wrapperBox, carousel);
+      wrapperBox.appendChild(carousel);
   
-    // --- Add Navigation Arrows ---
-    document.querySelectorAll('.rtc__carousel').forEach((carousel) => {
       const prev = document.createElement('button');
       prev.className = 'rtc__nav rtc__prev';
       prev.textContent = '←';
+  
       const next = document.createElement('button');
       next.className = 'rtc__nav rtc__next';
       next.textContent = '→';
-      carousel.parentElement.append(prev, next);
+  
+      wrapperBox.appendChild(prev);
+      wrapperBox.appendChild(next);
+  
+      // compute card width on demand
+      function getCardWidth() {
+        const card = carousel.querySelector('.rtc__card');
+        return card ? (card.offsetWidth + parseInt(getComputedStyle(carousel).gap || 24)) : 320;
+      }
   
       let scrollPos = 0;
-      const cardWidth = carousel.querySelector('.rtc__card')?.offsetWidth || 300;
-  
       prev.addEventListener('click', () => {
-        scrollPos = Math.max(0, scrollPos - cardWidth - 24);
+        const w = getCardWidth();
+        scrollPos = Math.max(0, scrollPos - w);
         carousel.scrollTo({ left: scrollPos, behavior: 'smooth' });
       });
       next.addEventListener('click', () => {
-        scrollPos = Math.min(carousel.scrollWidth, scrollPos + cardWidth + 24);
+        const w = getCardWidth();
+        scrollPos = Math.min(carousel.scrollWidth - carousel.clientWidth, scrollPos + w);
         carousel.scrollTo({ left: scrollPos, behavior: 'smooth' });
       });
+  
+      // reset scrollPos when tab becomes active
+      carousel.addEventListener('scroll', () => {
+        scrollPos = carousel.scrollLeft;
+      });
     });
+  
+    // final append already done above
+    console.log('Recipe Tabs Carousel ready');
   }
   

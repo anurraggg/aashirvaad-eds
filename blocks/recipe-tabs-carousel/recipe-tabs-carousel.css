@@ -40,23 +40,39 @@
     background: #d71a28;
     color: #fff;
     border-color: #d71a28;
+    box-shadow: 0 0 10px rgba(215, 26, 40, 0.4);
   }
   
   /* ---------- Carousel Wrapper ---------- */
   .rtc__carousels {
     position: relative;
+    min-height: 520px; /* Keeps height consistent when switching */
   }
   
+  /* Hide all carousels by default */
   .rtc__carousel {
-    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s ease;
     overflow-x: auto;
     scroll-behavior: smooth;
     gap: 24px;
     padding: 0 5%;
   }
   
+  /* Only the active one shows up */
   .rtc__carousel.active {
-    display: flex;
+    position: relative;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    z-index: 5;
   }
   
   .rtc__carousel::-webkit-scrollbar {

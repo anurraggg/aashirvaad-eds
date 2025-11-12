@@ -3,7 +3,7 @@ export default function decorate(block) {
     if (!block) return;
     block.classList.add('recipe-tabs-carousel');
   
-    // Collect rows (EDS often flattens tables into divs)
+    // Collect rows
     const rows = [...block.children];
     if (rows.length === 0) {
       console.warn('recipe-tabs-carousel: no rows found.');
@@ -43,23 +43,18 @@ export default function decorate(block) {
     wrapper.appendChild(tabsContainer);
     wrapper.appendChild(carouselsContainer);
   
-    // replace block content with our wrapper
     block.innerHTML = '';
     block.appendChild(wrapper);
   
-    // Helper: robust row parser
+    // Helper: parse row data
     function parseRowContent(row) {
-      // image src (if any)
       const imgEl = row.querySelector('img');
       const img = imgEl ? (imgEl.src || '') : '';
-  
-      // gather text nodes inside row (div, p, span) to a single string
       const texts = [...row.querySelectorAll('div, p, span')]
         .map(n => (n.innerText || '').trim())
         .filter(Boolean);
       const fullText = texts.join('\n');
   
-      // attempt to extract labeled fields
       const getLabel = (label) => {
         const re = new RegExp(label.replace(/\s+/g, '\\s*') + '\\s*:\\s*(.+)', 'i');
         const m = fullText.match(re);
@@ -68,36 +63,32 @@ export default function decorate(block) {
   
       const data = {
         img,
-        overlayTitle: getLabel('Overlay Title') || getLabel('OverlayTitle') || null,
-        overlayButton: getLabel('Overlay Button') || getLabel('OverlayButton') || null,
+        overlayTitle: getLabel('Overlay Title') || null,
+        overlayButton: getLabel('Overlay Button') || null,
         category: getLabel('Category') || null,
         title: getLabel('Title') || null,
         time: getLabel('Time') || null,
         level: getLabel('Level') || null,
         link: getLabel('Link') || null,
-        // keep the raw lines as fallback
         rawLines: texts
       };
   
-      // Fallback mapping if no labeled fields exist
       const anyLabelFound = ['overlayTitle','overlayButton','category','title','time','level','link']
         .some(k => !!data[k]);
       if (!anyLabelFound && data.rawLines.length) {
-        // map ordered lines to fields (best-effort)
         const L = data.rawLines;
-        data.overlayTitle = data.overlayTitle || L[0] || null;
-        data.overlayButton = data.overlayButton || L[1] || null;
-        data.category = data.category || L[2] || null;
-        data.title = data.title || L[3] || null;
-        data.time = data.time || L[4] || null;
-        data.level = data.level || L[5] || null;
-        data.link = data.link || L[6] || null;
+        data.overlayTitle = L[0] || null;
+        data.overlayButton = L[1] || null;
+        data.category = L[2] || null;
+        data.title = L[3] || null;
+        data.time = L[4] || null;
+        data.level = L[5] || null;
+        data.link = L[6] || null;
       }
-  
       return data;
     }
   
-    // Build tabs + carousels
+    // --- Build tabs + carousels ---
     const tabsArray = [];
     const carouselsArray = [];
     let activeCarousel = null;
@@ -106,7 +97,6 @@ export default function decorate(block) {
       const firstCol = (row.children?.[0]?.innerText || '').trim().toLowerCase();
   
       if (firstCol === 'tab') {
-        // new tab
         const tabName = (row.children?.[1]?.innerText || 'Tab').trim();
         const tabBtn = document.createElement('button');
         tabBtn.className = 'rtc__tab';
@@ -115,33 +105,19 @@ export default function decorate(block) {
         tabsContainer.appendChild(tabBtn);
         tabsArray.push(tabBtn);
   
-        // create carousel for this tab
-        const carousel = document.createElement('div');
-        carousel.className = 'rtc__carousel';
-        // wrap carousel for arrows positioning
         const carouselWrap = document.createElement('div');
         carouselWrap.className = 'rtc__carousel-wrap';
+        const carousel = document.createElement('div');
+        carousel.className = 'rtc__carousel';
         carouselWrap.appendChild(carousel);
         carouselsContainer.appendChild(carouselWrap);
         carouselsArray.push(carousel);
-  
-        // set active for first tab later
         activeCarousel = carousel;
-  
-        // click handler will be attached after all built
-      } else {
-        // card row — must have current carousel
-        if (!activeCarousel) {
-          // ignore rows before first 'Tab'
-          console.warn('recipe-tabs-carousel: card row before first "Tab" row - ignored.');
-          return;
-        }
+      } else if (activeCarousel) {
         const data = parseRowContent(row);
-        // build card
         const card = document.createElement('div');
         card.className = 'rtc__card';
   
-        // image wrapper
         const imgWrap = document.createElement('div');
         imgWrap.className = 'rtc__image';
         if (data.img) {
@@ -152,7 +128,6 @@ export default function decorate(block) {
           imgWrap.appendChild(img);
         }
   
-        // overlay (only overlayTitle + overlayButton)
         const overlay = document.createElement('div');
         overlay.className = 'rtc__overlay';
         if (data.overlayTitle) {
@@ -168,15 +143,11 @@ export default function decorate(block) {
           if (data.link) {
             btn.href = data.link;
             btn.setAttribute('target', '_self');
-          } else {
-            // if no link, make it non-clickable but keep style
-            btn.removeAttribute('href');
           }
           overlay.appendChild(btn);
         }
         imgWrap.appendChild(overlay);
   
-        // body
         const body = document.createElement('div');
         body.className = 'rtc__body';
         if (data.category) {
@@ -206,25 +177,20 @@ export default function decorate(block) {
         }
         body.appendChild(meta);
   
-        // assemble card
         card.appendChild(imgWrap);
         card.appendChild(body);
-  
-        // append to active carousel
         activeCarousel.appendChild(card);
       }
     });
   
-    // If no tabs were created, abort
     if (!tabsArray.length || !carouselsArray.length) {
       console.warn('recipe-tabs-carousel: no tabs/carousels created.');
       return;
     }
   
-    // Add arrows and attach nav handlers for each carousel
-    carouselsArray.forEach((carousel) => {
-      const wrap = carousel.parentElement; // .rtc__carousel-wrap
-      // create prev / next
+    // --- Add navigation arrows ---
+    carouselsArray.forEach((carousel, index) => {
+      const wrap = carousel.parentElement;
       const prev = document.createElement('button');
       prev.type = 'button';
       prev.className = 'rtc__nav rtc__prev';
@@ -233,49 +199,38 @@ export default function decorate(block) {
       next.type = 'button';
       next.className = 'rtc__nav rtc__next';
       next.textContent = '→';
-  
-      // position arrows inside wrapper
       wrap.appendChild(prev);
       wrap.appendChild(next);
   
-      // compute scroll distance on each click based on card width
-      function getScrollStep() {
+      const getScrollStep = () => {
         const card = carousel.querySelector('.rtc__card');
         const gap = parseInt(getComputedStyle(carousel).gap || 24, 10) || 24;
         return card ? (card.offsetWidth + gap) : 320;
-      }
+      };
   
       prev.addEventListener('click', () => {
-        const step = getScrollStep();
-        carousel.scrollBy({ left: -step, behavior: 'smooth' });
+        const activeCarousel = carouselsArray.find(c => c.classList.contains('active'));
+        if (activeCarousel === carousel) {
+          activeCarousel.scrollBy({ left: -getScrollStep(), behavior: 'smooth' });
+        }
       });
   
       next.addEventListener('click', () => {
-        const step = getScrollStep();
-        carousel.scrollBy({ left: step, behavior: 'smooth' });
+        const activeCarousel = carouselsArray.find(c => c.classList.contains('active'));
+        if (activeCarousel === carousel) {
+          activeCarousel.scrollBy({ left: getScrollStep(), behavior: 'smooth' });
+        }
       });
     });
   
-    // --- Tab switching logic (use arrays so indexes match) ---
-    // activate first tab/carousel by default
+    // --- Tab switching ---
     function setActiveTab(index) {
-      tabsArray.forEach((t, i) => {
-        if (i === index) t.classList.add('active'); else t.classList.remove('active');
-      });
+      tabsArray.forEach((t, i) => t.classList.toggle('active', i === index));
       carouselsArray.forEach((c, i) => {
-        if (i === index) {
-          c.classList.add('active');
-          c.style.opacity = '1';
-          c.style.visibility = 'visible';
-          c.style.transform = 'translateY(0)';
-          c.parentElement.style.zIndex = '5';
-        } else {
-          c.classList.remove('active');
-          c.style.opacity = '0';
-          c.style.visibility = 'hidden';
-          c.style.transform = 'translateY(10px)';
-          c.parentElement.style.zIndex = '1';
-        }
+        c.classList.toggle('active', i === index);
+        c.style.opacity = i === index ? '1' : '0';
+        c.style.visibility = i === index ? 'visible' : 'hidden';
+        c.style.transform = i === index ? 'translateY(0)' : 'translateY(10px)';
       });
     }
   
@@ -283,24 +238,20 @@ export default function decorate(block) {
   
     tabsArray.forEach((tab, i) => {
       tab.addEventListener('click', () => {
-        if (tab.classList.contains('active')) return;
-        setActiveTab(i);
-        // reset scroll position of newly activated carousel
-        const carousel = carouselsArray[i];
-        if (carousel) carousel.scrollTo({ left: 0, behavior: 'smooth' });
+        if (!tab.classList.contains('active')) {
+          setActiveTab(i);
+          const carousel = carouselsArray[i];
+          if (carousel) carousel.scrollTo({ left: 0, behavior: 'smooth' });
+        }
       });
     });
   
-    // ensure overlay buttons are clickable and open link (but not whole card)
+    // --- Overlay button click handling ---
     block.querySelectorAll('.rtc__overlay-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => {
-        // if it has an href we allow it; stop propagation so card-level handlers (if any) won't catch
         e.stopPropagation();
         const href = btn.getAttribute('href');
-        if (href) {
-          // open in same tab (consistent with earlier behavior)
-          window.location.href = href;
-        }
+        if (href) window.location.href = href;
       });
     });
   

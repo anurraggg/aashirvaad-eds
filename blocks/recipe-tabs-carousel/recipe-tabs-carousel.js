@@ -14,7 +14,7 @@ export default function decorate(block) {
     const title = (titleRow?.children?.[0]?.innerText || '').trim();
     const subtitle = (titleRow?.children?.[1]?.innerText || '').trim();
   
-    // --- Create main structure ---
+    // --- Main structure ---
     const wrapper = document.createElement('div');
     wrapper.className = 'rtc__wrapper';
   
@@ -44,7 +44,7 @@ export default function decorate(block) {
     block.innerHTML = '';
     block.appendChild(wrapper);
   
-    // --- Helper: Parse row content ---
+    // --- Helper: Parse content ---
     function parseRowContent(row) {
       const imgEl = row.querySelector('img');
       const img = imgEl ? (imgEl.src || '') : '';
@@ -68,7 +68,7 @@ export default function decorate(block) {
         link: getLabel('Link') || null,
         rawLines: texts
       };
-      const anyLabelFound = ['overlayTitle','overlayButton','category','title','time','level','link']
+      const anyLabelFound = ['overlayTitle', 'overlayButton', 'category', 'title', 'time', 'level', 'link']
         .some(k => !!data[k]);
       if (!anyLabelFound && data.rawLines.length) {
         const L = data.rawLines;
@@ -183,44 +183,59 @@ export default function decorate(block) {
       return;
     }
   
-    // --- ✅ Add navigation arrows (final confirmed version) ---
-    carouselsArray.forEach((carousel) => {
-      const wrap = carousel.parentElement;
+    // --- Add global navigation arrows (they control the currently active carousel) ---
+    const globalPrev = document.createElement('button');
+    globalPrev.type = 'button';
+    globalPrev.className = 'rtc__nav rtc__prev';
+    globalPrev.textContent = '←';
   
-      // Create arrows
-      const prev = document.createElement('button');
-      prev.type = 'button';
-      prev.className = 'rtc__nav rtc__prev';
-      prev.textContent = '←';
+    const globalNext = document.createElement('button');
+    globalNext.type = 'button';
+    globalNext.className = 'rtc__nav rtc__next';
+    globalNext.textContent = '→';
   
-      const next = document.createElement('button');
-      next.type = 'button';
-      next.className = 'rtc__nav rtc__next';
-      next.textContent = '→';
+    carouselsContainer.appendChild(globalPrev);
+    carouselsContainer.appendChild(globalNext);
   
-      wrap.appendChild(prev);
-      wrap.appendChild(next);
+    // --- Helpful measurement functions ---
+    function getCardMetrics(carousel) {
+      const card = carousel.querySelector('.rtc__card');
+      if (!card) return null;
+      const gap = parseInt(getComputedStyle(carousel).gap || 60, 10) || 60;
+      const cw = Math.round(card.getBoundingClientRect().width);
+      return { cardWidth: cw, full: cw + gap, gap };
+    }
   
-      // Calculate scroll step (1 card width + gap)
-      const getScrollStep = () => {
-        const card = carousel.querySelector('.rtc__card');
-        const gap = parseInt(getComputedStyle(carousel).gap || 24, 10) || 24;
-        return card ? (card.offsetWidth + gap) : Math.floor(carousel.offsetWidth * 0.9);
-      };
+    // ✅ Improved scroll logic (fixes half-card issue)
+    function scrollOneCardIndex(direction) {
+      const active = carouselsArray.find(c => c.classList.contains('active'));
+      if (!active) return;
   
-      // ✅ Scroll the carousel itself (confirmed scrollable)
-      prev.addEventListener('click', () => {
-        const step = getScrollStep();
-        console.log('⬅️ Scrolling LEFT —', carousel.className, 'by', step);
-        carousel.scrollBy({ left: -step, behavior: 'smooth' });
-      });
+      const metrics = getCardMetrics(active);
+      if (!metrics) {
+        const approx = Math.floor(active.clientWidth * 0.9);
+        active.scrollBy({ left: direction === 'right' ? approx : -approx, behavior: 'smooth' });
+        return;
+      }
   
-      next.addEventListener('click', () => {
-        const step = getScrollStep();
-        console.log('➡️ Scrolling RIGHT —', carousel.className, 'by', step);
-        carousel.scrollBy({ left: step, behavior: 'smooth' });
-      });
-    });
+      const fullCard = metrics.full;
+      const maxScroll = active.scrollWidth - active.clientWidth;
+      const currentScroll = active.scrollLeft;
+  
+      const idealNextScroll = currentScroll + (direction === 'right' ? fullCard : -fullCard);
+      let targetScroll = Math.round(idealNextScroll / fullCard) * fullCard;
+  
+      // ✅ Snap cleanly at the end
+      if (direction === 'right' && targetScroll > maxScroll - fullCard / 2) {
+        targetScroll = maxScroll;
+      }
+  
+      targetScroll = Math.max(0, Math.min(targetScroll, maxScroll));
+      active.scrollTo({ left: targetScroll, behavior: 'smooth' });
+    }
+  
+    globalPrev.addEventListener('click', () => scrollOneCardIndex('left'));
+    globalNext.addEventListener('click', () => scrollOneCardIndex('right'));
   
     // --- Tab switching ---
     function setActiveTab(index) {
@@ -231,6 +246,7 @@ export default function decorate(block) {
         c.style.visibility = i === index ? 'visible' : 'hidden';
         c.style.transform = i === index ? 'translateY(0)' : 'translateY(10px)';
         if (c.parentElement) c.parentElement.style.zIndex = i === index ? '5' : '1';
+        if (i === index) c.scrollTo({ left: 0, behavior: 'instant' });
       });
     }
   
@@ -240,13 +256,11 @@ export default function decorate(block) {
       tab.addEventListener('click', () => {
         if (!tab.classList.contains('active')) {
           setActiveTab(i);
-          const carousel = carouselsArray[i];
-          if (carousel) carousel.scrollTo({ left: 0, behavior: 'smooth' });
         }
       });
     });
   
-    // --- Overlay button click handling ---
+    // overlay button click handling
     block.querySelectorAll('.rtc__overlay-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -254,6 +268,17 @@ export default function decorate(block) {
         if (href) window.location.href = href;
       });
     });
+  
+    const ro = new ResizeObserver(() => {
+      const active = carouselsArray.find(c => c.classList.contains('active'));
+      if (!active) return;
+      const metrics = getCardMetrics(active);
+      if (!metrics) return;
+      const idx = Math.round(active.scrollLeft / metrics.full);
+      active.scrollTo({ left: idx * metrics.full, behavior: 'instant' });
+    });
+  
+    carouselsArray.forEach(c => ro.observe(c));
   
     console.log('✅ recipe-tabs-carousel: build complete', {
       tabs: tabsArray.length,

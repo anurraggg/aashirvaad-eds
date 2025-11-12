@@ -87,7 +87,8 @@
   
   /* ---------- Cards ---------- */
   .rtc__card {
-    flex: 0 0 calc((100% - (2 * 114px)) / 3); /* ✅ fixed width for 3 cards & 60px gaps */
+    /* ✅ FIX: Corrected calculation. (100% - (2 * 60px gap)) / 3 cards */
+    flex: 0 0 calc((100% - 120px) / 3);
     box-sizing: border-box;
     min-width: 0;
     background: #fff;
@@ -231,15 +232,20 @@
   }
   
   /* ---------- Responsive ---------- */
-  @media (max-width: 1024px) {
+  @media (max-width: 1200px) {
     .rtc__card {
-      flex: 0 0 calc((100% - 60px) / 2); /* 2 cards per row with same gap */
+      flex: 0 0 calc((100% - 60px) / 2); /* 2 cards on tablet */
     }
   }
   
   @media (max-width: 768px) {
+    .rtc__carousel {
+      gap: 32px;
+      padding: 0 8%;
+    }
+  
     .rtc__card {
-      flex: 0 0 100%; /* 1 card per row */
+      flex: 0 0 100%; /* 1 card on mobile */
     }
   
     .rtc__nav {
@@ -248,4 +254,3 @@
       font-size: 1.2rem;
     }
   }
-  

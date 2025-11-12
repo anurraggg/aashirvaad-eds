@@ -2,8 +2,7 @@
     width: 100%;
     display: flex;
     justify-content: center;
-    background-color: #fff6e6;
-    padding: 40px 0;
+    padding: 60px 0;
   }
   
   .promo-banner__wrapper {
@@ -63,7 +62,7 @@
   }
 
   .section.promo-banner-container{
-    background: #e3d8cc;
+    background: transparent linear-gradient(0deg,#e2d7cc 50%,#fff6e6 0) no-repeat;
   }
   
   /* Responsive */

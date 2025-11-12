@@ -1,20 +1,24 @@
 export default function decorate(block) {
     block.classList.add('promo-banner');
   
-    const rows = [...block.children];
-    if (rows.length === 0) return;
+    // Collect all child divs (Google Doc → EDS flattens to <div>)
+    const divs = [...block.querySelectorAll(':scope > div')];
   
-    // Get content from Google Doc table or divs
-    const cells = [...rows[0].children];
-    const bgImgEl = block.querySelector('img');
-    const bgImgSrc = bgImgEl ? bgImgEl.src : '';
+    if (divs.length === 0) return;
   
-    const title = cells[1]?.innerText?.trim() || '';
-    const desc = cells[2]?.innerText?.trim() || '';
-    const buttonText = cells[3]?.innerText?.trim() || '';
-    const buttonLink = cells[4]?.innerText?.trim() || '#';
+    // Extract background image (first image found)
+    const bgImg = block.querySelector('img');
+    const bgImgSrc = bgImg ? bgImg.src : '';
   
-    // Build HTML
+    // Extract content fields
+    const textFields = divs.map((d) => d.innerText.trim()).filter((t) => t);
+  
+    const title = textFields[0] || '';
+    const description = textFields[1] || '';
+    const buttonText = textFields[2] || '';
+    const buttonLink = textFields[3] || '#';
+  
+    // --- Build Banner ---
     const wrapper = document.createElement('div');
     wrapper.className = 'promo-banner__wrapper';
     if (bgImgSrc) wrapper.style.backgroundImage = `url('${bgImgSrc}')`;
@@ -31,9 +35,9 @@ export default function decorate(block) {
       content.appendChild(h2);
     }
   
-    if (desc) {
+    if (description) {
       const p = document.createElement('p');
-      p.textContent = desc;
+      p.textContent = description;
       content.appendChild(p);
     }
   
@@ -48,6 +52,7 @@ export default function decorate(block) {
     overlay.appendChild(content);
     wrapper.appendChild(overlay);
   
+    // Clear original block content and insert new markup
     block.innerHTML = '';
     block.appendChild(wrapper);
   }

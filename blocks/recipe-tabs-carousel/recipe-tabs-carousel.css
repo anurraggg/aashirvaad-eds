@@ -46,28 +46,29 @@
   /* ---------- Carousel Wrapper ---------- */
   .rtc__carousels {
     position: relative;
-    min-height: 520px; /* Keeps height consistent when switching */
+    min-height: 520px;
+    overflow: hidden;
   }
   
-/* Hide all carousels by default */
-.rtc__carousel {
+  /* Each carousel container */
+  .rtc__carousel {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: 60px; /* wider spacing */
     opacity: 0;
     visibility: hidden;
     transform: translateY(10px);
     transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s ease;
-    overflow: hidden; /* 🧩 Fix: hide overflowing cards */
-    scroll-behavior: smooth;
-    gap: 24px;
+    overflow: hidden;
     padding: 0 5%;
-    justify-content: flex-start;
   }
   
-  /* Only the active one shows up */
+  /* Active carousel */
   .rtc__carousel.active {
     position: relative;
     opacity: 1;
@@ -82,9 +83,9 @@
   
   /* ---------- Cards ---------- */
   .rtc__card {
-    flex: 0 0 calc(33.33% - 16px);
-    min-width: 280px;
-    max-width: 360px;
+    flex: 0 0 calc((100% - (2 * 114px)) / 3); /* ✅ fixed width for 3 cards & 60px gaps */
+    box-sizing: border-box;
+    min-width: 0;
     background: #fff;
     border-radius: 16px;
     overflow: hidden;
@@ -96,6 +97,12 @@
   .rtc__card:hover {
     transform: translateY(-6px);
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Center cards if fewer than 3 */
+  .rtc__carousel:has(.rtc__card:nth-child(1):last-child),
+  .rtc__carousel:has(.rtc__card:nth-child(2):last-child) {
+    justify-content: center;
   }
   
   /* ---------- Image & Overlay ---------- */
@@ -125,12 +132,6 @@
     z-index: 2;
     padding: 16px;
   }
-
-  /* Optional: Center cards if there are fewer than 3 */
-.rtc__carousel:has(.rtc__card:nth-child(1):last-child),
-.rtc__carousel:has(.rtc__card:nth-child(2):last-child) {
-  justify-content: center;
-}
   
   .rtc__image:hover .rtc__overlay {
     opacity: 1;
@@ -218,23 +219,23 @@
   }
   
   .rtc__prev {
-    left: 1%;
+    left: 0%;
   }
   
   .rtc__next {
-    right: 1%;
+    right: 0%;
   }
   
   /* ---------- Responsive ---------- */
   @media (max-width: 1024px) {
     .rtc__card {
-      flex: 0 0 45%;
+      flex: 0 0 calc((100% - 60px) / 2); /* 2 cards per row with same gap */
     }
   }
   
   @media (max-width: 768px) {
     .rtc__card {
-      flex: 0 0 80%;
+      flex: 0 0 100%; /* 1 card per row */
     }
   
     .rtc__nav {

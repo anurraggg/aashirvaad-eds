@@ -61,6 +61,10 @@
   .promo-banner__btn:hover {
     background: #b71520;
   }
+
+  .section.promo-banner-container{
+    background: #e3d8cc;
+  }
   
   /* Responsive */
   @media (max-width: 768px) {

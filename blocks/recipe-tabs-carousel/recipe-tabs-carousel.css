@@ -60,12 +60,15 @@
     display: flex;
     flex-wrap: nowrap;
     justify-content: flex-start;
-    gap: 60px; /* wider spacing */
+    gap: 60px; /* spacing between cards */
     opacity: 0;
     visibility: hidden;
     transform: translateY(10px);
     transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s ease;
-    overflow: hidden;
+    overflow-x: auto; /* ✅ enable horizontal scroll */
+    overflow-y: hidden; /* ✅ only allow horizontal scroll */
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
     padding: 0 5%;
   }
   

@@ -3,7 +3,6 @@ export default function decorate(block) {
     if (!block) return;
     block.classList.add('recipe-tabs-carousel');
   
-    // Collect rows
     const rows = [...block.children];
     if (rows.length === 0) {
       console.warn('recipe-tabs-carousel: no rows found.');
@@ -42,11 +41,10 @@ export default function decorate(block) {
   
     wrapper.appendChild(tabsContainer);
     wrapper.appendChild(carouselsContainer);
-  
     block.innerHTML = '';
     block.appendChild(wrapper);
   
-    // Helper: parse row data
+    // --- Helper: Parse row content ---
     function parseRowContent(row) {
       const imgEl = row.querySelector('img');
       const img = imgEl ? (imgEl.src || '') : '';
@@ -54,13 +52,11 @@ export default function decorate(block) {
         .map(n => (n.innerText || '').trim())
         .filter(Boolean);
       const fullText = texts.join('\n');
-  
       const getLabel = (label) => {
         const re = new RegExp(label.replace(/\s+/g, '\\s*') + '\\s*:\\s*(.+)', 'i');
         const m = fullText.match(re);
         return m ? m[1].trim() : null;
       };
-  
       const data = {
         img,
         overlayTitle: getLabel('Overlay Title') || null,
@@ -72,7 +68,6 @@ export default function decorate(block) {
         link: getLabel('Link') || null,
         rawLines: texts
       };
-  
       const anyLabelFound = ['overlayTitle','overlayButton','category','title','time','level','link']
         .some(k => !!data[k]);
       if (!anyLabelFound && data.rawLines.length) {
@@ -188,38 +183,42 @@ export default function decorate(block) {
       return;
     }
   
-    // --- Add navigation arrows ---
-    carouselsArray.forEach((carousel, index) => {
+    // --- ✅ Add navigation arrows (final confirmed version) ---
+    carouselsArray.forEach((carousel) => {
       const wrap = carousel.parentElement;
+  
+      // Create arrows
       const prev = document.createElement('button');
       prev.type = 'button';
       prev.className = 'rtc__nav rtc__prev';
       prev.textContent = '←';
+  
       const next = document.createElement('button');
       next.type = 'button';
       next.className = 'rtc__nav rtc__next';
       next.textContent = '→';
+  
       wrap.appendChild(prev);
       wrap.appendChild(next);
   
+      // Calculate scroll step (1 card width + gap)
       const getScrollStep = () => {
         const card = carousel.querySelector('.rtc__card');
         const gap = parseInt(getComputedStyle(carousel).gap || 24, 10) || 24;
-        return card ? (card.offsetWidth + gap) : 320;
+        return card ? (card.offsetWidth + gap) : Math.floor(carousel.offsetWidth * 0.9);
       };
   
+      // ✅ Scroll the carousel itself (confirmed scrollable)
       prev.addEventListener('click', () => {
-        const activeCarousel = carouselsArray.find(c => c.classList.contains('active'));
-        if (activeCarousel === carousel) {
-          activeCarousel.scrollBy({ left: -getScrollStep(), behavior: 'smooth' });
-        }
+        const step = getScrollStep();
+        console.log('⬅️ Scrolling LEFT —', carousel.className, 'by', step);
+        carousel.scrollBy({ left: -step, behavior: 'smooth' });
       });
   
       next.addEventListener('click', () => {
-        const activeCarousel = carouselsArray.find(c => c.classList.contains('active'));
-        if (activeCarousel === carousel) {
-          activeCarousel.scrollBy({ left: getScrollStep(), behavior: 'smooth' });
-        }
+        const step = getScrollStep();
+        console.log('➡️ Scrolling RIGHT —', carousel.className, 'by', step);
+        carousel.scrollBy({ left: step, behavior: 'smooth' });
       });
     });
   
@@ -231,6 +230,7 @@ export default function decorate(block) {
         c.style.opacity = i === index ? '1' : '0';
         c.style.visibility = i === index ? 'visible' : 'hidden';
         c.style.transform = i === index ? 'translateY(0)' : 'translateY(10px)';
+        if (c.parentElement) c.parentElement.style.zIndex = i === index ? '5' : '1';
       });
     }
   
@@ -255,6 +255,9 @@ export default function decorate(block) {
       });
     });
   
-    console.log('✅ recipe-tabs-carousel: build complete', { tabs: tabsArray.length, carousels: carouselsArray.length });
+    console.log('✅ recipe-tabs-carousel: build complete', {
+      tabs: tabsArray.length,
+      carousels: carouselsArray.length
+    });
   }
   

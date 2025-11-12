@@ -1,5 +1,5 @@
 .recipe-tabs-carousel {
-    background-color: #ede0d1;
+    background-color: #fff6e6;
     padding: 60px 5%;
     text-align: center;
     font-family: 'Georgia', serif;
@@ -65,11 +65,17 @@
     visibility: hidden;
     transform: translateY(10px);
     transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s ease;
-    overflow-x: auto; /* ✅ enable horizontal scroll */
-    overflow-y: hidden; /* ✅ only allow horizontal scroll */
+    overflow-x: auto;
+    overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
-    padding: 0 5%;
+  
+    /* ✅ FIX 1: Add right padding = gap to ensure last card is fully visible */
+    padding: 0 5% 0 5%;
+    padding-right: calc(5% + 60px);
+  
+    /* ✅ Optional: smooth snapping feel */
+    scroll-snap-type: x mandatory;
   }
   
   /* Active carousel */
@@ -87,7 +93,6 @@
   
   /* ---------- Cards ---------- */
   .rtc__card {
-    /* ✅ FIX: Corrected calculation. (100% - (2 * 60px gap)) / 3 cards */
     flex: 0 0 calc((100% - 120px) / 3);
     box-sizing: border-box;
     min-width: 0;
@@ -97,6 +102,9 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: default;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  
+    /* ✅ FIX 2: Snap cards to alignment */
+    scroll-snap-align: start;
   }
   
   .rtc__card:hover {
@@ -234,7 +242,7 @@
   /* ---------- Responsive ---------- */
   @media (max-width: 1200px) {
     .rtc__card {
-      flex: 0 0 calc((100% - 60px) / 2); /* 2 cards on tablet */
+      flex: 0 0 calc((100% - 60px) / 2);
     }
   }
   
@@ -242,10 +250,11 @@
     .rtc__carousel {
       gap: 32px;
       padding: 0 8%;
+      padding-right: calc(8% + 32px); /* ✅ keep right padding consistent */
     }
   
     .rtc__card {
-      flex: 0 0 100%; /* 1 card on mobile */
+      flex: 0 0 100%;
     }
   
     .rtc__nav {
@@ -254,3 +263,4 @@
       font-size: 1.2rem;
     }
   }
+  

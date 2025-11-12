@@ -183,7 +183,7 @@ export default function decorate(block) {
       return;
     }
   
-    // --- Add global navigation arrows (they control the currently active carousel) ---
+    // --- Add navigation arrows ---
     const globalPrev = document.createElement('button');
     globalPrev.type = 'button';
     globalPrev.className = 'rtc__nav rtc__prev';
@@ -197,7 +197,7 @@ export default function decorate(block) {
     carouselsContainer.appendChild(globalPrev);
     carouselsContainer.appendChild(globalNext);
   
-    // --- Helpful measurement functions ---
+    // --- Helper to measure card size ---
     function getCardMetrics(carousel) {
       const card = carousel.querySelector('.rtc__card');
       if (!card) return null;
@@ -206,32 +206,37 @@ export default function decorate(block) {
       return { cardWidth: cw, full: cw + gap, gap };
     }
   
-    // ✅ Improved scroll logic (fixes half-card issue)
+    // --- One-card-per-click scroll logic ---
     function scrollOneCardIndex(direction) {
       const active = carouselsArray.find(c => c.classList.contains('active'));
       if (!active) return;
   
       const metrics = getCardMetrics(active);
-      if (!metrics) {
-        const approx = Math.floor(active.clientWidth * 0.9);
-        active.scrollBy({ left: direction === 'right' ? approx : -approx, behavior: 'smooth' });
-        return;
-      }
+      if (!metrics) return;
   
       const fullCard = metrics.full;
+      const totalCards = active.querySelectorAll('.rtc__card').length;
       const maxScroll = active.scrollWidth - active.clientWidth;
-      const currentScroll = active.scrollLeft;
   
-      const idealNextScroll = currentScroll + (direction === 'right' ? fullCard : -fullCard);
-      let targetScroll = Math.round(idealNextScroll / fullCard) * fullCard;
+      // Current card index
+      const currentIndex = Math.round(active.scrollLeft / fullCard);
+      let targetIndex = direction === 'right' ? currentIndex + 1 : currentIndex - 1;
   
-      // ✅ Snap cleanly at the end
-      if (direction === 'right' && targetScroll > maxScroll - fullCard / 2) {
+      const visibleCount = Math.floor(active.clientWidth / fullCard);
+      const maxIndex = Math.max(0, totalCards - visibleCount);
+      targetIndex = Math.max(0, Math.min(targetIndex, maxIndex));
+  
+      let targetScroll = targetIndex * fullCard;
+  
+      // ✅ FIX: Prevent last card from being half-hidden
+      if (targetScroll > maxScroll - metrics.gap / 2) {
         targetScroll = maxScroll;
       }
   
-      targetScroll = Math.max(0, Math.min(targetScroll, maxScroll));
-      active.scrollTo({ left: targetScroll, behavior: 'smooth' });
+      active.scrollTo({
+        left: targetScroll,
+        behavior: 'smooth',
+      });
     }
   
     globalPrev.addEventListener('click', () => scrollOneCardIndex('left'));
@@ -260,7 +265,7 @@ export default function decorate(block) {
       });
     });
   
-    // overlay button click handling
+    // --- Overlay buttons ---
     block.querySelectorAll('.rtc__overlay-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -269,6 +274,7 @@ export default function decorate(block) {
       });
     });
   
+    // --- Resize observer for responsiveness ---
     const ro = new ResizeObserver(() => {
       const active = carouselsArray.find(c => c.classList.contains('active'));
       if (!active) return;
@@ -276,9 +282,21 @@ export default function decorate(block) {
       if (!metrics) return;
       const idx = Math.round(active.scrollLeft / metrics.full);
       active.scrollTo({ left: idx * metrics.full, behavior: 'instant' });
+  
+      // ✅ Extra check to ensure we don't exceed max scroll after resize
+      const maxScroll = active.scrollWidth - active.clientWidth;
+      if (active.scrollLeft > maxScroll) {
+        active.scrollTo({ left: maxScroll, behavior: 'instant' });
+      }
     });
   
     carouselsArray.forEach(c => ro.observe(c));
+  
+    // ✅ Optional: Keyboard arrow navigation
+    block.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') scrollOneCardIndex('left');
+      if (e.key === 'ArrowRight') scrollOneCardIndex('right');
+    });
   
     console.log('✅ recipe-tabs-carousel: build complete', {
       tabs: tabsArray.length,

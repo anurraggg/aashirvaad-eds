@@ -49,8 +49,8 @@
     min-height: 520px; /* Keeps height consistent when switching */
   }
   
-  /* Hide all carousels by default */
-  .rtc__carousel {
+/* Hide all carousels by default */
+.rtc__carousel {
     position: absolute;
     top: 0;
     left: 0;
@@ -60,10 +60,11 @@
     visibility: hidden;
     transform: translateY(10px);
     transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s ease;
-    overflow-x: auto;
+    overflow: hidden; /* 🧩 Fix: hide overflowing cards */
     scroll-behavior: smooth;
     gap: 24px;
     padding: 0 5%;
+    justify-content: flex-start;
   }
   
   /* Only the active one shows up */
@@ -81,11 +82,12 @@
   
   /* ---------- Cards ---------- */
   .rtc__card {
-    flex: 0 0 30%;
+    flex: 0 0 calc(33.33% - 16px);
+    min-width: 280px;
+    max-width: 360px;
     background: #fff;
     border-radius: 16px;
     overflow: hidden;
-    min-width: 280px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: default;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -123,6 +125,12 @@
     z-index: 2;
     padding: 16px;
   }
+
+  /* Optional: Center cards if there are fewer than 3 */
+.rtc__carousel:has(.rtc__card:nth-child(1):last-child),
+.rtc__carousel:has(.rtc__card:nth-child(2):last-child) {
+  justify-content: center;
+}
   
   .rtc__image:hover .rtc__overlay {
     opacity: 1;

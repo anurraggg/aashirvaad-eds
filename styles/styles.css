@@ -12,7 +12,7 @@
 
 :root {
   /* colors */
-  --background-color: white;
+  --background-color: #fff6e6;
   --light-color: #f8f8f8;
   --dark-color: #505050;
   --text-color: #131313;
@@ -235,6 +235,10 @@ main > .section:first-of-type {
   margin-top: 0;
 }
 
+.section.recipe-tabs-carousel-container{
+  background: #e3d8cc;
+}
+
 @media (width >= 900px) {
   main > .section > div {
     padding: 0 32px;
@@ -257,4 +261,8 @@ main .section.highlight {
 
 .section.category-grid-container{
   background: #fff6e3;
+}
+
+.section.recipe-tabs-carousel-container{
+  background: #e3d8cc;
 }

@@ -237,6 +237,7 @@ main > .section:first-of-type {
 
 .section.recipe-tabs-carousel-container{
   background: #e3d8cc;
+  margin-top: -41px;
 }
 
 @media (width >= 900px) {

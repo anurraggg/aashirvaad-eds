@@ -1,0 +1,200 @@
+.newsletter-signup {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #d9001d; /* Red theme */
+    color: white;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    border-radius: 8px;
+    gap: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .newsletter-signup .left-logos {
+    display: flex;
+    flex-direction: column; /* Stack vertically */
+    align-items: flex-start; /* Align left for logos */
+    gap: 40px; /* Gap for vertical spacing */
+    flex-shrink: 0;
+  }
+  
+  .newsletter-signup .left-logos img {
+    object-fit: contain;
+    width: 200px;
+  }
+  
+  .newsletter-signup .fssai-text {
+    font-size: 12px;
+    opacity: 0.9;
+    white-space: nowrap;
+  }
+  
+  .newsletter-signup .center-form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: baseline;
+    gap: 20px;
+    text-align: center;
+    padding-left: 8rem;
+  }
+  
+  .newsletter-signup .title {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem; /* Space between logo and text */
+  }
+  
+  .newsletter-signup .title img {
+    height: 60px; /* Fixed height for title logo to match text baseline */
+    vertical-align: middle;
+    margin-right: 10px;
+  }
+  
+  .newsletter-signup .title span {
+    margin: 0;
+    line-height: 1.2; /* Adjusted for better baseline match */
+    font-size: 29px;
+    padding-top: 0; /* Removed excessive padding; use flex alignment */
+    color: #fff6e3;
+    padding-left: 20px;
+    font-family: 'Times New Roman', Times, serif;
+  }
+  
+  .newsletter-signup .email-input {
+    padding: 10px 15px;
+    border: 2px solid #fff6e3; /* White border for rounded look */
+    border-radius: 25px; /* Highly rounded */
+    background-color: #d9001d; 
+    width: 360px;
+    max-width: 100%;
+    font-size: 18px;
+    color: #000000; /* Black text for readability */
+  }
+  
+  .newsletter-signup .email-input::placeholder {
+    color: #fff6e3; /* Gray placeholder */
+  }
+  
+  .newsletter-signup .checkbox-row {
+    display: flex;
+    align-items: flex-start; /* Top-align for multi-line label */
+    gap: 8px;
+    font-size: 14px;
+    opacity: 0.9;
+    max-width: 300px; /* Constrain for wrapping */
+    text-align: left;
+  }
+  
+  .newsletter-signup .checkbox-row input[type="checkbox"] {
+    width: 15px;
+    margin-top: 2px; /* Align with text top */
+    flex-shrink: 0;
+    height: 20px;
+  }
+  
+  .newsletter-signup .checkbox-row label {
+    flex: 1;
+    white-space: normal; /* Allow wrapping */
+    line-height: 1.5; /* Multi-line spacing */
+    word-break: break-word;
+    font-weight: bold;
+    font-size: 18px;
+    color: #fff6e3;
+  }
+  
+  .newsletter-signup .register-btn {
+    background: #ed808d; /* Pink for CTA */
+    color: black; /* White text */
+    border: none;
+    padding: 14px 30px;
+    border-radius: 20px; /* Highly rounded */
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+    white-space: nowrap; /* Single line */
+  }
+  
+  .newsletter-signup .register-btn:hover {
+    background: #ff1493; /* Darker pink on hover */
+  }
+  
+  .newsletter-signup .right-links {
+    display: flex;
+    flex-direction: row; /* Horizontal for two columns */
+    gap: 0;
+    font-size: 14px;
+    white-space: nowrap;
+    align-items: flex-start; /* Align tops */
+  }
+  
+  .newsletter-signup .right-links .left-column,
+  .newsletter-signup .right-links .right-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Vertical spacing in columns */
+    padding-right: 15px;
+    margin-right: 10px;
+    font-weight: bold;
+  }
+  
+  .newsletter-signup .right-links .separator {
+    width: 1px;
+    background-color: #ffffff; /* White vertical line */
+    margin: 0 10px; /* Space around separator */
+    height: 100%; /* Full height of columns */
+    opacity: 0.9;
+  }
+  
+  .newsletter-signup .right-links span {
+    color: #fff6e3;
+    opacity: 0.9;
+    font-size: 20px;
+  }
+  
+  /* Mobile: Stack vertically */
+  @media (max-width: 768px) {
+    .newsletter-signup {
+      flex-direction: column;
+      text-align: center;
+      gap: 15px;
+    }
+    .newsletter-signup .left-logos {
+      flex-direction: row; /* Side-by-side on mobile for space */
+      justify-content: center;
+    }
+    .newsletter-signup .right-links {
+      flex-direction: column; /* Stack columns vertically on mobile */
+      align-items: center;
+      gap: 10px;
+    }
+    .newsletter-signup .right-links .separator {
+      display: none; /* Hide separator on mobile */
+    }
+    .newsletter-signup .email-input {
+      width: 100%;
+    }
+    .newsletter-signup .title {
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .newsletter-signup .title img {
+      height: 40px; /* Smaller on mobile */
+    }
+    .newsletter-signup .checkbox-row {
+      text-align: center;
+      max-width: 100%;
+    }
+  
+    img[alt="Aashirvaad Logo"] {
+      padding-bottom: 30px;
+      width: 60px;
+      height: 60px;
+    }
+  }
